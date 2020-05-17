@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
-    <version>4.4</version>
-    <date>2020-04-22T17:04:18Z</date>
+    <version>5.0</version>
+    <date>2020-05-17T23:08:14Z</date>
     <groups>
         <group>
             <name>Template pve-zsync</name>
@@ -9,13 +9,12 @@
     </groups>
     <templates>
         <template>
-            <template>Template PVE Zsync Active</template>
-            <name>Template PVE Zsync Active</name>
-            <description>Discovery replications tasks form pve-zsync, and create items and trigger for monitor states. Items are Zabbix Active, for more performance, and when used with encryption become more secure.&#13;
+            <template>Template PVE-zsync - Active Agent</template>
+            <name>Template PVE-zsync - Active Agent</name>
+            <description>Monitors replication tasks from PVE-zsync (https://pve.proxmox.com/wiki/PVE-zsync)&#13;
 &#13;
-# Version 1 &#13;
-Created by: Caio jorge (Cacohh)&#13;
-Date: 30/09/2019</description>
+Author: Sebastian Plocek&#13;
+https://github.com/sebastian13/zabbix-template-pve-zsync</description>
             <groups>
                 <group>
                     <name>Template pve-zsync</name>
@@ -28,155 +27,111 @@ Date: 30/09/2019</description>
             </applications>
             <discovery_rules>
                 <discovery_rule>
-                    <name>PVE Zsync tasks discovery</name>
+                    <name>PVE-zsync Replication Discovery</name>
                     <type>ZABBIX_ACTIVE</type>
-                    <key>pvezsync.discoveryJobs[4.2]</key>
+                    <key>pvezsync.discovery</key>
                     <delay>1h</delay>
                     <lifetime>3d</lifetime>
-                    <description>Discovery of replications tasks from pve-zsync tool. Items are Zabbix active, and more secure when used with encryption.</description>
+                    <description>Discovery of replications tasks from `pve-zsync list`.</description>
                     <item_prototypes>
                         <item_prototype>
-                            <name>Replication Task Scheduled Description of {#NAME} in {#SOURCE}</name>
+                            <name>PVE-zsync Frequency of {#NAME}, {#SOURCE}</name>
                             <type>ZABBIX_ACTIVE</type>
                             <key>pvezsync.JobDescriptor[{#SOURCE}]</key>
-                            <delay>45m</delay>
+                            <delay>15m</delay>
                             <trends>0</trends>
                             <value_type>CHAR</value_type>
                             <description>Shows the scheduled description from pve-zsync command for this job replication.</description>
-                            <applications>
-                                <application>
-                                    <name>PVE-Zsync</name>
-                                </application>
-                            </applications>
                             <application_prototypes>
                                 <application_prototype>
-                                    <name>PVE-Task-Descriptor</name>
+                                    <name>PVE-zsync {#NAME}</name>
                                 </application_prototype>
                             </application_prototypes>
                             <trigger_prototypes>
                                 <trigger_prototype>
                                     <expression>{change()}=1</expression>
-                                    <name>Replication task Scheduled {#NAME}  on {#SOURCE} changed</name>
+                                    <name>PVE-zsync Replication Cronjob {#NAME}, {#SOURCE} has changed</name>
                                     <priority>INFO</priority>
                                     <description>Shows when the scheduled for the replication task changes.</description>
                                 </trigger_prototype>
                             </trigger_prototypes>
                         </item_prototype>
                         <item_prototype>
-                            <name>Replication Task Max Snapshots of {#NAME} in {#SOURCE}</name>
+                            <name>PVE-zsync Max. Snapshots of {#NAME}, {#SOURCE}</name>
                             <type>ZABBIX_ACTIVE</type>
                             <key>pvezsync.JobMaxSnap[{#SOURCE}]</key>
-                            <delay>45m</delay>
-                            <units>Snaps</units>
+                            <delay>15m</delay>
+                            <units>snapshots</units>
                             <description>Shows the value of Maxsnaps parameter of pve-zsync command.</description>
-                            <applications>
-                                <application>
-                                    <name>PVE-Zsync</name>
-                                </application>
-                            </applications>
                             <application_prototypes>
                                 <application_prototype>
-                                    <name>PVE-Task-MaxSnapshots</name>
+                                    <name>PVE-zsync {#NAME}</name>
                                 </application_prototype>
                             </application_prototypes>
                             <trigger_prototypes>
                                 <trigger_prototype>
                                     <expression>{diff()}=1</expression>
-                                    <name>Replication task Max Snapshots {#NAME}  on {#SOURCE} changed</name>
+                                    <name>PVE-zsync Max Snapshots Configuration of {#NAME}, {#SOURCE} has changed</name>
                                     <priority>INFO</priority>
                                     <description>Shows when replication task changed in pve-zsync command.</description>
                                 </trigger_prototype>
                             </trigger_prototypes>
                         </item_prototype>
                         <item_prototype>
-                            <name>Replication Task State of {#NAME} in {#SOURCE}</name>
+                            <name>PVE-zsync State of {#NAME}, {#SOURCE}</name>
                             <type>ZABBIX_ACTIVE</type>
                             <key>pvezsync.Jobstate[{#SOURCE}]</key>
-                            <delay>45m</delay>
+                            <delay>5m</delay>
+                            <trends>0</trends>
+                            <value_type>CHAR</value_type>
                             <description>Shows the state of the last run of replication from pve-zsync command.</description>
-                            <applications>
-                                <application>
-                                    <name>PVE-Zsync</name>
-                                </application>
-                            </applications>
                             <application_prototypes>
                                 <application_prototype>
-                                    <name>PVE-Task-State</name>
+                                    <name>PVE-zsync {#NAME}</name>
                                 </application_prototype>
                             </application_prototypes>
-                            <valuemap>
-                                <name>PVE Zsync Replication Task State Map</name>
-                            </valuemap>
                             <trigger_prototypes>
                                 <trigger_prototype>
-                                    <expression>{last()}=5</expression>
-                                    <name>Replication task {#NAME}  on {#SOURCE} has a unknown error</name>
+                                    <expression>{regexp(&quot;(ok|syncing)&quot;)}=0</expression>
+                                    <name>PVE-zsync Replication Status {#NAME}, {#SOURCE} is $1</name>
                                     <priority>HIGH</priority>
-                                    <description>Shows when a replication task from pve-zsync has a unknown error.</description>
-                                </trigger_prototype>
-                                <trigger_prototype>
-                                    <expression>{last()}=3</expression>
-                                    <name>Replication task {#NAME}  on {#SOURCE} is in error</name>
-                                    <priority>HIGH</priority>
-                                    <description>Alert when a replication task from pve-zsync command fails.</description>
-                                </trigger_prototype>
-                                <trigger_prototype>
-                                    <expression>{last()}=2</expression>
-                                    <name>Replication task {#NAME}  on {#SOURCE} is stopped</name>
-                                    <priority>WARNING</priority>
-                                    <description>Shows when a replication task in pve-zsync is stopped.</description>
-                                </trigger_prototype>
-                                <trigger_prototype>
-                                    <expression>{last()}=1</expression>
-                                    <name>Replication task {#NAME}  on {#SOURCE} is syncing</name>
-                                    <priority>INFO</priority>
-                                    <description>Shows when replication task from pve-zsync is syncing.</description>
-                                </trigger_prototype>
-                                <trigger_prototype>
-                                    <expression>{last()}=4</expression>
-                                    <name>Replication task {#NAME}  on {#SOURCE} is waiting</name>
-                                    <priority>HIGH</priority>
-                                    <description>Shows when a replication task from pve-zsync has a unknown error.</description>
+                                    <description>Shows when a replication task in pve-zsync is abnormal.</description>
                                 </trigger_prototype>
                             </trigger_prototypes>
                         </item_prototype>
                         <item_prototype>
-                            <name>Replication Task Next Run of {#NAME} in {#SOURCE}</name>
+                            <name>PVE-zsync Last Sync of {#NAME}, {#SOURCE}</name>
                             <type>ZABBIX_ACTIVE</type>
-                            <key>pvezsync.NextRun[{#SOURCE}]</key>
-                            <delay>45m</delay>
-                            <trends>0</trends>
-                            <status>DISABLED</status>
-                            <value_type>CHAR</value_type>
-                            <description>Shows the next run of this replication job from pve-zsync scheduled.</description>
-                            <applications>
-                                <application>
-                                    <name>PVE-Zsync</name>
-                                </application>
-                            </applications>
+                            <key>pvezsync.LastSync[{#NAME}, {#SOURCE}]</key>
+                            <delay>5m</delay>
+                            <value_type>FLOAT</value_type>
+                            <units>unixtime</units>
+                            <description>Shows the previous run of this replication job from pve-zsync scheduled.</description>
                             <application_prototypes>
                                 <application_prototype>
-                                    <name>PVE-Task-NextRun</name>
+                                    <name>PVE-zsync {#NAME}</name>
                                 </application_prototype>
                             </application_prototypes>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{fuzzytime(960)}=0</expression>
+                                    <name>PVE-zsync Replication of {#NAME}, {#SOURCE} is outstanding</name>
+                                    <priority>HIGH</priority>
+                                    <description>Creates an alert when the timestamp of the last alert is older than 16 minutes.</description>
+                                </trigger_prototype>
+                            </trigger_prototypes>
                         </item_prototype>
                         <item_prototype>
-                            <name>Replication Task Previous Run of {#NAME} in {#SOURCE}</name>
+                            <name>PVE-zsync Next Run of {#NAME}, {#SOURCE}</name>
                             <type>ZABBIX_ACTIVE</type>
-                            <key>pvezsync.PreviousRun[{#SOURCE}]</key>
-                            <delay>45m</delay>
+                            <key>pvezsync.NextRun[{#SOURCE}]</key>
+                            <delay>5m</delay>
                             <trends>0</trends>
-                            <status>DISABLED</status>
                             <value_type>CHAR</value_type>
-                            <description>Shows the previous run of this replication job from pve-zsync scheduled.</description>
-                            <applications>
-                                <application>
-                                    <name>PVE-Zsync</name>
-                                </application>
-                            </applications>
+                            <description>Shows the next run of this replication job from pve-zsync scheduled.</description>
                             <application_prototypes>
                                 <application_prototype>
-                                    <name>PVE-Task-PreviousRun</name>
+                                    <name>PVE-zsync {#NAME}</name>
                                 </application_prototype>
                             </application_prototypes>
                         </item_prototype>
@@ -185,31 +140,4 @@ Date: 30/09/2019</description>
             </discovery_rules>
         </template>
     </templates>
-    <value_maps>
-        <value_map>
-            <name>PVE Zsync Replication Task State Map</name>
-            <mappings>
-                <mapping>
-                    <value>0</value>
-                    <newvalue>OK</newvalue>
-                </mapping>
-                <mapping>
-                    <value>1</value>
-                    <newvalue>Syncing</newvalue>
-                </mapping>
-                <mapping>
-                    <value>2</value>
-                    <newvalue>Stopped</newvalue>
-                </mapping>
-                <mapping>
-                    <value>3</value>
-                    <newvalue>Error</newvalue>
-                </mapping>
-                <mapping>
-                    <value>4</value>
-                    <newvalue>Unknown</newvalue>
-                </mapping>
-            </mappings>
-        </value_map>
-    </value_maps>
 </zabbix_export>

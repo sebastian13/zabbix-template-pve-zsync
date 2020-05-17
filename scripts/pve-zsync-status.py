@@ -1,3 +1,11 @@
+# Get Information about PVE-zsync Replication Tasks
+
+# Author: Sebastian Plocek
+# https://github.com/sebastian13/zabbix-template-pve-zsync
+
+# Forked from
+# https://github.com/Cacohh/Template-PVE-Zsync/blob/master/scripts/pvezsync.py
+
 # Function to access crontab file
 def accessCrontab(filePath):
     from crontab import CronTab
@@ -8,8 +16,7 @@ def accessCrontab(filePath):
 # Function to obtain replication state for specific job
 def pvezsyncJobState(job):
     import subprocess
-    command = str("l=$(pve-zsync list | grep " + str(
-        job) + " | tr -s ' ' ',' | cut -d, -f 3 ); if [ $l == 'ok' ]; then echo 0; elif [ $l == 'syncing' ]; then echo 1; elif [ $l == 'stopped' ]; then echo 2; elif [ $l == 'error' ]; then echo 3; elif [ $l == 'waiting' ]; then echo 4;  else echo 5; fi;")
+    command = str("pve-zsync list | grep " + str(job) + " | tr -s ' ' ',' | cut -d, -f 3")
     data = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
     stdout, stderr = data.communicate()
     return stdout.decode('utf-8')
@@ -27,15 +34,14 @@ def pvezsyncNextRun(crontabSystem, commandoJob):
 
 
 # Function that return the date of the previous run from a job in crontab file
-def pvezsyncPreviousRun(crontabSystem, commandoJob):
+def pvezsyncLastSync(name, source):
+    import subprocess
     import re
-    import datetime
-    for job in crontabSystem:
-        x = re.findall(commandoJob, str(job))
-        if x:
-            sch = job.schedule(date_from=datetime.datetime.now())
-            return sch.get_prev()
-
+    from datetime import datetime
+    import time
+    s = subprocess.check_output("pve-zsync list | grep '" + str(source) + " .* " + str(name) + "' | awk '{print $4}' | tr -d '\n'", shell=True)
+    d = datetime.strptime(s.decode('utf-8'), "%Y-%m-%d_%H:%M:%S")
+    return time.mktime(d.timetuple())
 
 def pvezsyncDescriptor(crontabSystem, commandoJob):
     import re
@@ -66,8 +72,8 @@ if __name__ == '__main__':
         print(pvezsyncJobState(sys.argv[2]))
     elif sys.argv[1] == "pvezsyncNextRun":
         print(pvezsyncNextRun(accessCrontab(file), sys.argv[2]))
-    elif sys.argv[1] == "pvezsyncPreviousRun":
-        print(pvezsyncPreviousRun(accessCrontab(file), sys.argv[2]))
+    elif sys.argv[1] == "pvezsyncLastSync":
+        print(pvezsyncLastSync(sys.argv[2], sys.argv[3]))
     elif sys.argv[1] == "pvezsyncDescriptor":
         print(pvezsyncDescriptor(accessCrontab(file), sys.argv[2]))
     elif sys.argv[1] == "pvezsyncMaxSnap":
