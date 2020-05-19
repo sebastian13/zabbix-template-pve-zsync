@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2020-05-17T23:08:14Z</date>
+    <date>2020-05-19T20:00:11Z</date>
     <groups>
         <group>
             <name>Template pve-zsync</name>
@@ -35,9 +35,22 @@ https://github.com/sebastian13/zabbix-template-pve-zsync</description>
                     <description>Discovery of replications tasks from `pve-zsync list`.</description>
                     <item_prototypes>
                         <item_prototype>
+                            <name>PVE-zsync Destination of {#NAME}, {#SOURCE}</name>
+                            <type>ZABBIX_ACTIVE</type>
+                            <key>pvezsync.Dest[{#NAME}, {#SOURCE}]</key>
+                            <delay>5m</delay>
+                            <trends>0</trends>
+                            <value_type>CHAR</value_type>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>PVE-zsync {#NAME}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                        </item_prototype>
+                        <item_prototype>
                             <name>PVE-zsync Frequency of {#NAME}, {#SOURCE}</name>
                             <type>ZABBIX_ACTIVE</type>
-                            <key>pvezsync.JobDescriptor[{#SOURCE}]</key>
+                            <key>pvezsync.JobDescriptor[{#NAME}, {#SOURCE}]</key>
                             <delay>15m</delay>
                             <trends>0</trends>
                             <value_type>CHAR</value_type>
@@ -59,7 +72,7 @@ https://github.com/sebastian13/zabbix-template-pve-zsync</description>
                         <item_prototype>
                             <name>PVE-zsync Max. Snapshots of {#NAME}, {#SOURCE}</name>
                             <type>ZABBIX_ACTIVE</type>
-                            <key>pvezsync.JobMaxSnap[{#SOURCE}]</key>
+                            <key>pvezsync.JobMaxSnap[{#NAME}, {#SOURCE}]</key>
                             <delay>15m</delay>
                             <units>snapshots</units>
                             <description>Shows the value of Maxsnaps parameter of pve-zsync command.</description>
@@ -80,7 +93,7 @@ https://github.com/sebastian13/zabbix-template-pve-zsync</description>
                         <item_prototype>
                             <name>PVE-zsync State of {#NAME}, {#SOURCE}</name>
                             <type>ZABBIX_ACTIVE</type>
-                            <key>pvezsync.Jobstate[{#SOURCE}]</key>
+                            <key>pvezsync.Jobstate[{#NAME}, {#SOURCE}]</key>
                             <delay>5m</delay>
                             <trends>0</trends>
                             <value_type>CHAR</value_type>
@@ -93,7 +106,7 @@ https://github.com/sebastian13/zabbix-template-pve-zsync</description>
                             <trigger_prototypes>
                                 <trigger_prototype>
                                     <expression>{regexp(&quot;(ok|syncing)&quot;)}=0</expression>
-                                    <name>PVE-zsync Replication Status {#NAME}, {#SOURCE} is $1</name>
+                                    <name>PVE-zsync Replication Status {#NAME}, {#SOURCE} is {ITEM.LASTVALUE}</name>
                                     <priority>HIGH</priority>
                                     <description>Shows when a replication task in pve-zsync is abnormal.</description>
                                 </trigger_prototype>
@@ -124,7 +137,7 @@ https://github.com/sebastian13/zabbix-template-pve-zsync</description>
                         <item_prototype>
                             <name>PVE-zsync Next Run of {#NAME}, {#SOURCE}</name>
                             <type>ZABBIX_ACTIVE</type>
-                            <key>pvezsync.NextRun[{#SOURCE}]</key>
+                            <key>pvezsync.NextRun[{#NAME}, {#SOURCE}]</key>
                             <delay>5m</delay>
                             <trends>0</trends>
                             <value_type>CHAR</value_type>
