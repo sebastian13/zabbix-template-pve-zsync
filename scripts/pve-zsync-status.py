@@ -97,8 +97,7 @@ if __name__ == '__main__':
     # Imports
     import sys
     # Define location of crontab file of PVE-Zsync (Default: '/etc/cron.d/pve-zsync')
-    #file = '/etc/cron.d/pve-zsync'
-    file = '/Users/sebastian/Git Repositories/github.com/zabbix-template-pve-zsync/cron'
+    file = '/etc/cron.d/pve-zsync'
 
     if len(sys.argv) != 4:
         help()
