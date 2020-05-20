@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2020-05-19T20:00:11Z</date>
+    <date>2020-05-20T20:09:20Z</date>
     <groups>
         <group>
             <name>Template pve-zsync</name>
@@ -38,7 +38,7 @@ https://github.com/sebastian13/zabbix-template-pve-zsync</description>
                             <name>PVE-zsync Destination of {#NAME}, {#SOURCE}</name>
                             <type>ZABBIX_ACTIVE</type>
                             <key>pvezsync.Dest[{#NAME}, {#SOURCE}]</key>
-                            <delay>5m</delay>
+                            <delay>1h</delay>
                             <trends>0</trends>
                             <value_type>CHAR</value_type>
                             <application_prototypes>
@@ -51,7 +51,7 @@ https://github.com/sebastian13/zabbix-template-pve-zsync</description>
                             <name>PVE-zsync Frequency of {#NAME}, {#SOURCE}</name>
                             <type>ZABBIX_ACTIVE</type>
                             <key>pvezsync.JobDescriptor[{#NAME}, {#SOURCE}]</key>
-                            <delay>15m</delay>
+                            <delay>1h</delay>
                             <trends>0</trends>
                             <value_type>CHAR</value_type>
                             <description>Shows the scheduled description from pve-zsync command for this job replication.</description>
@@ -94,7 +94,6 @@ https://github.com/sebastian13/zabbix-template-pve-zsync</description>
                             <name>PVE-zsync State of {#NAME}, {#SOURCE}</name>
                             <type>ZABBIX_ACTIVE</type>
                             <key>pvezsync.Jobstate[{#NAME}, {#SOURCE}]</key>
-                            <delay>5m</delay>
                             <trends>0</trends>
                             <value_type>CHAR</value_type>
                             <description>Shows the state of the last run of replication from pve-zsync command.</description>
@@ -116,10 +115,9 @@ https://github.com/sebastian13/zabbix-template-pve-zsync</description>
                             <name>PVE-zsync Last Sync of {#NAME}, {#SOURCE}</name>
                             <type>ZABBIX_ACTIVE</type>
                             <key>pvezsync.LastSync[{#NAME}, {#SOURCE}]</key>
-                            <delay>5m</delay>
                             <value_type>FLOAT</value_type>
                             <units>unixtime</units>
-                            <description>Shows the previous run of this replication job from pve-zsync scheduled.</description>
+                            <description>Shows the previous run of this replication job of pve-zsync.</description>
                             <application_prototypes>
                                 <application_prototype>
                                     <name>PVE-zsync {#NAME}</name>
@@ -127,10 +125,10 @@ https://github.com/sebastian13/zabbix-template-pve-zsync</description>
                             </application_prototypes>
                             <trigger_prototypes>
                                 <trigger_prototype>
-                                    <expression>{fuzzytime(960)}=0</expression>
+                                    <expression>{fuzzytime({#FUZZYTIME})}=0</expression>
                                     <name>PVE-zsync Replication of {#NAME}, {#SOURCE} is outstanding</name>
                                     <priority>HIGH</priority>
-                                    <description>Creates an alert when the timestamp of the last alert is older than 16 minutes.</description>
+                                    <description>Creates an alert when the timestamp of the last alert is older than the cron's frequency, plus 5 minutes tolerance.</description>
                                 </trigger_prototype>
                             </trigger_prototypes>
                         </item_prototype>

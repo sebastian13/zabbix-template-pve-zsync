@@ -18,6 +18,7 @@ def help():
             Available [functions]:
                 - pvezsyncDescriptor
                 - pvezsyncDest
+                - pvezsyncFuzzytime
                 - pvezsyncJobState
                 - pvezsyncLastSync
                 - pvezsyncMaxSnap
@@ -71,6 +72,17 @@ def pvezsyncDescriptor(cron, name, source):
         return job.description(use_24hour_time_format=True)
 
 
+# Return the fuzzytime - i.e. the time between each cron run, incl. a 5-minutes tolerance
+def pvezsyncFuzzytime(cron, name, source):
+    import re
+    import datetime
+    iter = cron.find_command(re.compile("--source\s" + source + ".*--name\s" + name))
+    for job in iter:
+        # Calculate seconds between each execution, add a tolerance of 5 minutes.
+        fuzzytime = ( 86400 // job.frequency_per_day() ) + 300
+        return fuzzytime
+
+
 # Return the number of snapshots which should be kept
 def pvezsyncMaxSnap(cron, name, source):
     import re
@@ -112,6 +124,8 @@ if __name__ == '__main__':
         print(pvezsyncLastSync(sys.argv[2], sys.argv[3]))
     elif sys.argv[1] == "pvezsyncDescriptor":
         print(pvezsyncDescriptor(accessCrontab(file), sys.argv[2], sys.argv[3]))
+    elif sys.argv[1] == "pvezsyncFuzzytime":
+        print(pvezsyncFuzzytime(accessCrontab(file), sys.argv[2], sys.argv[3]), end='')
     elif sys.argv[1] == "pvezsyncMaxSnap":
         print(pvezsyncMaxSnap(accessCrontab(file), sys.argv[2], sys.argv[3]))
     elif sys.argv[1] == "pvezsyncDest":

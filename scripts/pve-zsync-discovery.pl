@@ -16,19 +16,22 @@ print "[\n";
 
 for my $i (`pve-zsync list | tail -n +2`)
 {
-	my @a = split ' ', $i;
+    my @a = split ' ', $i;
+    my $fuzzytime = `/usr/bin/python3 /etc/zabbix/scripts/pve-zsync-status.py \\
+                     pvezsyncFuzzytime $a[1] $a[0]`;
 
-	print "\t,\n" if not $first;
-	$first = 0;
+    print "\t,\n" if not $first;
+    $first = 0;
 
-	print "\t{\n";
-	print "\t\t\"{#SOURCE}\":\"$a[0]\",\n";
-	print "\t\t\"{#NAME}\":\"$a[1]\",\n";
-	print "\t\t\"{#STATE}\":\"$a[2]\",\n";
-	print "\t\t\"{#LASTSYNC}\":\"$a[3]\",\n";
-	print "\t\t\"{#TYPE}\":\"$a[4]\",\n";
-	print "\t\t\"{#CON}\":\"$a[5]\"\n";
-	print "\t}\n";
+    print "\t{\n";
+    print "\t\t\"{#SOURCE}\":\"$a[0]\",\n";
+    print "\t\t\"{#NAME}\":\"$a[1]\",\n";
+    print "\t\t\"{#STATE}\":\"$a[2]\",\n";
+    print "\t\t\"{#LASTSYNC}\":\"$a[3]\",\n";
+    print "\t\t\"{#TYPE}\":\"$a[4]\",\n";
+    print "\t\t\"{#CON}\":\"$a[5]\",\n";
+    print "\t\t\"{#FUZZYTIME}\":\"$fuzzytime\"\n";
+    print "\t}\n";
 }
 
 print "]\n";
