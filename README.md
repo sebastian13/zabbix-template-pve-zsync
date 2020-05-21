@@ -25,3 +25,9 @@ pip3 install cron-descriptor
 ![](screenshots/latest-data.png)
 
 ![](screenshots/triggers.png)
+
+### Customization
+
+* A custom tolerance for the fuzzytime, i.e. the time between each cron run, can be set for each host by overwriting the Macro {$FUZZYTOLERANCE} on the Macros page. The fuzzytime is used for the trigger "Replication x is outstanding" 
+
+ ![](screenshots/macros.png)
