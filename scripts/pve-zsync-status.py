@@ -78,8 +78,10 @@ def pvezsyncFuzzytime(cron, name, source):
     import datetime
     iter = cron.find_command(re.compile("--source\s" + source + ".*--name\s" + name))
     for job in iter:
-        # Calculate seconds between each execution, add a tolerance of 5 minutes.
-        fuzzytime = ( 86400 // job.frequency_per_day() ) + 300
+        # Calculate seconds between each execution
+        # A default tolerance of 300 seconds will be added via preprocessing on Zabbix Server.
+        # This can be customized by overwriting the inherited macro {$FUZZYTOLERANCE}.
+        fuzzytime = ( 86400 // job.frequency_per_day() )
         return fuzzytime
 
 

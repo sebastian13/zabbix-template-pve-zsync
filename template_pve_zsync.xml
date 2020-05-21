@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2020-05-20T20:09:20Z</date>
+    <date>2020-05-21T22:19:47Z</date>
     <groups>
         <group>
             <name>Template pve-zsync</name>
@@ -147,8 +147,29 @@ https://github.com/sebastian13/zabbix-template-pve-zsync</description>
                             </application_prototypes>
                         </item_prototype>
                     </item_prototypes>
+                    <preprocessing>
+                        <step>
+                            <type>JAVASCRIPT</type>
+                            <params>var jsonObject = JSON.parse(value);
+
+jsonObject.forEach(function(item) {
+  var fuzz = '{#FUZZYTIME}';
+  var newfuzz = parseFloat(item[fuzz]) + parseFloat({$FUZZYTOLERANCE});
+  item[fuzz] = newfuzz;
+});
+
+return JSON.stringify(jsonObject);</params>
+                        </step>
+                    </preprocessing>
                 </discovery_rule>
             </discovery_rules>
+            <macros>
+                <macro>
+                    <macro>{$FUZZYTOLERANCE}</macro>
+                    <value>300</value>
+                    <description>Adds a tolerance of x seconds to the time between each job execution. Default: 300 seconds.</description>
+                </macro>
+            </macros>
         </template>
     </templates>
 </zabbix_export>
